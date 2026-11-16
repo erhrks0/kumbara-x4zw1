@@ -1,8 +1,8 @@
 <!DOCTYPE html><html lang="tr" data-d="auto"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="apple-mobile-web-app-title" content="Birikim">
-<link rel="apple-touch-icon" href="icon.png"><link rel="manifest" href="manifest.json"><title>Birikim</title>
+<meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="apple-mobile-web-app-title" content="Kumbara">
+<link rel="apple-touch-icon" href="apple-touch-icon.png"><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#0E5C63"><title>Kumbara</title>
 <style>
 :root{--bg:#f3f1ec;--c:#fff;--t:#1c1b19;--m:#78746b;--g:#12805c;--r:#c8382e;--a:#2f6fed;--l:#e6e2d9}
 @media(prefers-color-scheme:dark){:root[data-d=auto]{--bg:#141412;--c:#1f1e1b;--t:#f1eee7;--m:#9a958a;--l:#33312c;--g:#3ecf9a;--r:#ff6b5f}}
@@ -40,6 +40,13 @@ const $=s=>document.querySelector(s),K='birikim_v2',MN=['Ocak','Şubat','Mart','
 const D={tx:[],cats:[],pots:[],rec:[],start:[],theme:'#2f6fed',dark:'auto'};
 let S=Object.assign({},D,JSON.parse(localStorage.getItem(K)||'{}'));
 const save=()=>localStorage.setItem(K,JSON.stringify(S)),uid=()=>Math.random().toString(36).slice(2,9);
+(function(){if(localStorage.getItem(K))return;try{const o=JSON.parse(localStorage.getItem('kumbara-demo-v1')||'null');if(!o||o.demo||!Array.isArray(o.entries))return;
+const E={Market:'🛒',Yemek:'🍔',Alışveriş:'🛍️',Kira:'🏠',Ulaşım:'🚗',Fatura:'💡',Eğlence:'🎬',Sağlık:'💊',Maaş:'💼','Ek gelir':'➕'},ids={},cs=[];
+const add=(type,n)=>{const c={id:uid(),type,e:E[n]||(type=='in'?'💰':'🏷️'),n,bud:type=='out'?(o.budgets[n]||0)/100:0};cs.push(c);ids[type+n]=c.id};
+o.cats.gelir.forEach(n=>add('in',n));o.cats.gider.forEach(n=>add('out',n));
+const tx=o.entries.map(e=>{const ty=e.type=='gelir'?'in':'out';return{id:uid(),type:ty,amt:e.amount/100,cat:ids[ty+e.cat]||'',date:e.date,note:e.note||''}});
+S=Object.assign({},D,{cats:cs,tx,start:o.start?[{id:uid(),n:'Başlangıç',amt:o.start/100}]:[],pots:o.goal&&o.goal.target>0?[{id:uid(),e:'🎯',n:o.goal.name||'Hedefim',target:o.goal.target/100,saved:0}]:[]});save()}catch(e){}})();
+
 const f=n=>(+n||0).toLocaleString('de-DE',{style:'currency',currency:'EUR'}),num=s=>parseFloat(String(s).replace(',','.'))||0;
 const esc=s=>String(s??'').replace(/"/g,'&quot;').replace(/</g,'&lt;');
 const td=()=>new Date(Date.now()-new Date().getTimezoneOffset()*6e4).toISOString().slice(0,10);
