@@ -1,3 +1,18 @@
-const C='birikim-1';
-self.addEventListener('install',e=>{self.skipWaiting()});
-self.addEventListener('fetch',e=>{if(e.request.method!='GET')return;e.respondWith(fetch(e.request).then(r=>{const c=r.clone();caches.open(C).then(x=>x.put(e.request,c));return r}).catch(()=>caches.match(e.request)))});
+const CACHE = 'kumbara-v3';
+self.addEventListener('install', e => { self.skipWaiting(); });
+self.addEventListener('activate', e => {
+  e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim()));
+});
+// Her zaman önce internetten taze kopyayı al (tarayıcı önbelleğini atla), internet yoksa kayıtlı kopyayı aç.
+self.addEventListener('fetch', e => {
+  const req = e.request;
+  if (req.method !== 'GET') return;
+  if (new URL(req.url).origin !== location.origin) return;
+  e.respondWith(
+    fetch(req.url, { cache: 'no-cache' }).then(res => {
+      const copy = res.clone();
+      caches.open(CACHE).then(c => c.put(req, copy));
+      return res;
+    }).catch(() => caches.match(req).then(r => r || caches.match('./')))
+  );
+});
